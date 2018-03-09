@@ -10,4 +10,6 @@ ChainList.deployed().then(function(instance){app = instance;})
 
 app.getArticle()
 
+truffle test --network ganache
+
 
