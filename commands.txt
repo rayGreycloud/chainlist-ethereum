@@ -1,0 +1,13 @@
+truffle migrate --network ganache
+
+truffle console --network ganache
+
+web3.fromWei(web3.eth.getBalance(web3.eth.accounts[0]), "ether").toNumber()
+
+web3.fromWei(web3.eth.getBalance(web3.eth.accounts[1]), "ether").toNumber()
+
+ChainList.deployed().then(function(instance){app = instance;})
+
+app.getArticle()
+
+
