@@ -7,11 +7,6 @@ contract ChainList {
   string description;
   uint256 price;
   
-  // constructor
-  function ChainList() public {
-    sellArticle("Wacky Widget", "This is the default article", 10 ether);
-  }
-  
   // sell an article 
   function sellArticle(string _name, string _description, uint256 _price) public {
     seller = msg.sender;
