@@ -101,6 +101,7 @@ App = {
         // refresh UI
         App.reloadArticles();
       }).catch(err => console.error(err)); 
+      
   }
 };
 
