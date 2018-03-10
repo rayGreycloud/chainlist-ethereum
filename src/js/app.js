@@ -14,7 +14,7 @@ App = {
       App.web3Provider = web3.currentProvider;
     } else {
       // create a new provider and plug into local node
-      App.web3Provider = new Web3.providers.HttpProvider('htpp://localhost:7545');
+      App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
     }
     web3 = new Web3(App.web3Provider);
     
@@ -38,8 +38,46 @@ App = {
   },
   
   initContract: function() {
-
+    $.getJSON('ChainList.json', function (chainListArtifact) {
+      // Get contract and instantiate contract 
+      App.contracts.ChainList = TruffleContract(chainListArtifact);
+      // Set provider 
+      App.contracts.ChainList.setProvider(App.web3Provider);
+      // Retrieve article(s) from contract 
+      return App.reloadArticles();
+    });
   },
+  
+  reloadArticles: function() {
+    // refresh account info 
+    App.displayAccountInfo();
+    
+    // retrieve the article placeholder and clear 
+    $('#articlesRow').empty();
+    
+    App.contracts.ChainList.deployed()
+      .then(instance => instance.getArticle())
+      .then(article => {
+        if (article[0] == 0x0) {
+          // exit if no article 
+          return;
+        }
+        
+        // retrieve the article template and fill it
+        let articleTemplate = $('#articleTemplate');
+        articleTemplate.find('.panel-title').text(article[1]);
+        articleTemplate.find('.article-description').text(article[2]);
+        articleTemplate.find('.article-price').text(web3.fromWei(article[3], 'ether'));
+        
+        let seller = App.account == article[0] ? "You" : article[0];      
+        articleTemplate.find('.article-seller').text(seller);
+        
+        // add this article 
+        $('#articlesRow').append(articleTemplate.html());
+      }).catch(function(err) {
+        console.error(err.message);
+      });
+  }
 };
 
 $(function() {
