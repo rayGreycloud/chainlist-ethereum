@@ -13,4 +13,12 @@ app.getArticle()
 
 truffle test --network ganache
 
+var sellEvent = app.LogSellArticle({},{fromBlock:0,toBlock:'latest'}).watch(function(error, event){console.log(event);})
 
+app.sellArticle("Test Article 13", "Description TA 13", web3.toWei(10, "ether"), {from:web3.eth.accounts[1]})
+
+app.sellArticle("Test Article 33", "Description TA 33", web3.toWei(33, "ether"), {from:web3.eth.accounts[1]})
+app.sellArticle("Test Article 44", "Description TA 44", web3.toWei(44, "ether"), {from:web3.eth.accounts[1]})
+app.sellArticle("Test Article 66", "Description TA 66", web3.toWei(66, "ether"), {from:web3.eth.accounts[1]})
+
+sellEvent.stopWatching()
