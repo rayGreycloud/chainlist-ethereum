@@ -1,12 +1,13 @@
 App = {
+  // Global variables
   web3Provider: null,
   contracts: {},
   account: 0x0,
-
+  // Initialize App 
   init: function() {
     return App.initWeb3();
   },
-
+  // Initialize web3 and set provider
   initWeb3: function() {
     // initialize web3 
     if (typeof web3 !== 'undefined') {
@@ -20,10 +21,10 @@ App = {
     
     // Display account info
     App.displayAccountInfo();
-    
+    // Next step, initialize contract
     return App.initContract();
   },
-
+  // Display account info 
   displayAccountInfo: function() {
     web3.eth.getCoinbase(function (err, account) {
       if (err === null) {
@@ -36,7 +37,7 @@ App = {
       }
     }); 
   },
-  
+  // Initialize contract 
   initContract: function() {
     $.getJSON('ChainList.json', function (chainListArtifact) {
       // Get contract and instantiate contract 
@@ -47,14 +48,14 @@ App = {
       return App.reloadArticles();
     });
   },
-  
+  // Reload article info 
   reloadArticles: function() {
     // refresh account info 
     App.displayAccountInfo();
     
     // retrieve the article placeholder and clear 
     $('#articlesRow').empty();
-    
+    // Get contract instance 
     App.contracts.ChainList.deployed()
       .then(instance => instance.getArticle())
       .then(article => {
@@ -78,7 +79,7 @@ App = {
         console.error(err.message);
       });
   },
-  
+  // Sell article 
   sellArticle: function () {
     // retrieve details of article 
     const _article_name = document.querySelector('#article_name').value;
@@ -91,7 +92,7 @@ App = {
     if ((_article_name.trim() == '') || (_price == 0)) {
       return false; // because nothing to sell
     }
-    
+    // Get contract instance and call sell article function
     App.contracts.ChainList.deployed()
       .then(instance => instance.sellArticle(_article_name, _description, _price, { 
         from: App.account,
@@ -102,6 +103,10 @@ App = {
         App.reloadArticles();
       }).catch(err => console.error(err)); 
       
+  }, 
+  // Listen to events triggered by contract
+  listenToEvents: function () {
+    
   }
 };
 
