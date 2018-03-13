@@ -23,3 +23,9 @@ app.sellArticle("Test Article 44", "Description TA 44", web3.toWei(44, "ether"),
 app.sellArticle("Test Article 66", "Description TA 66", web3.toWei(66, "ether"), {from:web3.eth.accounts[1]})
 
 sellEvent.stopWatching()
+
+truffle migrate --compile-all --reset --network chainskills
+truffle console --network chainskills
+web3.personal.unlockAccount(web3.eth.accounts[1], "pass1234", 600)
+
+
