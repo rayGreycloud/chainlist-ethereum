@@ -82,4 +82,31 @@ contract('ChainList', accounts => {
     });
   });  
 
+  // Article already bought 
+  it("should throw exception if article was already purchased", () => {
+    return ChainList.deployed()
+      .then(instance => {
+        chainListInstance = instance;
+        return chainListInstance.buyArticle({ 
+          from: buyer, 
+          value: web3.toWei(articlePrice, "ether") 
+        });
+      })
+      .then(() => chainListInstance.buyArticle({ 
+        from: buyer, 
+        value: web3.toWei(articlePrice, "ether") 
+      }))
+      .then(assert.fail)
+      .catch(error => {
+        assert(true);
+      })
+      .then(() => chainListInstance.getArticle())
+      .then(data => {
+        assert.equal(data[0], seller, `seller must be ${seller}`);
+        assert.equal(data[1], buyer, `buyer must be ${buyer}`);
+        assert.equal(data[2], articleName, `article name must be ${articleName}`);
+        assert.equal(data[3], articleDescription, `article description must be ${articleDescription}`);
+        assert.equal(data[4].toNumber(), web3.toWei(articlePrice, "ether"), `article price must be ${web3.toWei(articlePrice, "ether")}`);
+    });
+  });  
 });
