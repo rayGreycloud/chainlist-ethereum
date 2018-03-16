@@ -3,6 +3,8 @@ var ChainList = artifacts.require("./ChainList.sol");
 // test suite
 contract('ChainList', function(accounts){
   let chainListInstance;
+  let articleCount, 
+      articlesForSale;
   const seller = accounts[1];
   const buyer = accounts[2];
   const articleName1 = "article 1";
@@ -16,17 +18,27 @@ contract('ChainList', function(accounts){
       buyerBalanceBeforeBuy, 
       buyerBalanceAfterBuy;
 
-  it("should be initialized with empty values", function() {
-    return ChainList.deployed().then(function(instance) {
-      chainListInstance = instance;
-      return chainListInstance.getNumberOfArticles();
-    }).then(function(data) {
-      assert.equal(data.toNumber(), 0, "number of articles must be zero");
-      return chainListInstance.getArticlesForSale();
-    }).then(function(data){
-      assert.equal(data.length, 0, "there shouldn't be any article for sale");
-    });
-  });
+  it("should initialized contract with empty values", async () => {
+    chainListInstance = await ChainList.deployed();
+  
+    articleCount = await chainListInstance.getArticleCount();
+    assert.equal(articleCount.toNumber(), 0, 'number of articles must be zero');
+    
+    articlesForSale = await chainListInstance.getArticlesForSale();
+    assert.equal(articlesForSale.length, 0, "there shouldn't be any article for sale");
+  });    
+
+  // it("should be initialized with empty values", function() {
+  //   return ChainList.deployed().then(function(instance) {
+  //     chainListInstance = instance;
+  //     return chainListInstance.getNumberOfArticles();
+  //   }).then(function(data) {
+  //     assert.equal(data.toNumber(), 0, "number of articles must be zero");
+  //     return chainListInstance.getArticlesForSale();
+  //   }).then(function(data){
+  //     assert.equal(data.length, 0, "there shouldn't be any article for sale");
+  //   });
+  // });
 
   // sell a first article
   it("should let us sell a first article", function() {
@@ -47,7 +59,7 @@ contract('ChainList', function(accounts){
       assert.equal(receipt.logs[0].args._name, articleName1, "event article name must be " + articleName1);
       assert.equal(receipt.logs[0].args._price.toNumber(), web3.toWei(articlePrice1, "ether"), "event article price must be " + web3.toWei(articlePrice1, "ether"));
 
-      return chainListInstance.getNumberOfArticles();
+      return chainListInstance.getArticleCount();
     }).then(function(data) {
       assert.equal(data, 1, "number of articles must be one");
 
@@ -86,7 +98,7 @@ contract('ChainList', function(accounts){
       assert.equal(receipt.logs[0].args._name, articleName2, "event article name must be " + articleName2);
       assert.equal(receipt.logs[0].args._price.toNumber(), web3.toWei(articlePrice2, "ether"), "event article price must be " + web3.toWei(articlePrice2, "ether"));
 
-      return chainListInstance.getNumberOfArticles();
+      return chainListInstance.getArticleCount();
     }).then(function(data) {
       assert.equal(data, 2, "number of articles must be two");
 
@@ -139,7 +151,7 @@ contract('ChainList', function(accounts){
       assert.equal(data.length, 1, "there should now be only 1 article left for sale");
       assert.equal(data[0].toNumber(), 2, "article 2 should be the only article left for sale");
 
-      return chainListInstance.getNumberOfArticles();
+      return chainListInstance.getArticleCount();
     }).then(function(data){
       assert.equal(data.toNumber(), 2, "there should still be 2 articles in total");
     });
