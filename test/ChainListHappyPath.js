@@ -1,4 +1,4 @@
-var ChainList = artifacts.require("./ChainList.sol");
+const ChainList = artifacts.require("./ChainList.sol");
 
 // test suite
 contract('ChainList', function(accounts){
@@ -40,45 +40,80 @@ contract('ChainList', function(accounts){
   //   });
   // });
 
-  // sell a first article
-  it("should let us sell a first article", function() {
-    return ChainList.deployed().then(function(instance){
-      chainListInstance = instance;
-      return chainListInstance.sellArticle(
-        articleName1,
-        articleDescription1,
-        web3.toWei(articlePrice1, "ether"),
-        {from: seller}
-      );
-    }).then(function(receipt){
-      // check event
-      assert.equal(receipt.logs.length, 1, "one event should have been triggered");
-      assert.equal(receipt.logs[0].event, "LogSellArticle", "event should be LogSellArticle");
-      assert.equal(receipt.logs[0].args._id.toNumber(), 1, "id must be 1");
-      assert.equal(receipt.logs[0].args._seller, seller, "event seller must be " + seller);
-      assert.equal(receipt.logs[0].args._name, articleName1, "event article name must be " + articleName1);
-      assert.equal(receipt.logs[0].args._price.toNumber(), web3.toWei(articlePrice1, "ether"), "event article price must be " + web3.toWei(articlePrice1, "ether"));
+  // Sell an article 
+  it("should list an article for sale", async () => {
+    chainListInstance = await ChainList.deployed();    
+    
+    const receipt = await chainListInstance.sellArticle(
+      articleName1,
+      articleDescription1,
+      web3.toWei(articlePrice1, "ether"),
+      {from: seller}
+    );
+    
+    const { _id, _seller, _name, _price } = receipt.logs[0].args;
+    assert.equal(receipt.logs.length, 1, "one event should have been triggered");
+    assert.equal(receipt.logs[0].event, "LogSellArticle", "event should be LogSellArticle");
+    assert.equal(_id.toNumber(), 1, "id must be 1");
+    assert.equal(_seller, seller, "event seller must be " + seller);
+    assert.equal(_name, articleName1, "event article name must be " + articleName1);
+    assert.equal(_price.toNumber(), web3.toWei(articlePrice1, "ether"), "event article price must be " + web3.toWei(articlePrice1, "ether"));
+    
+    articleCount = await chainListInstance.getArticleCount();
+    assert.equal(articleCount, 1, "number of articles must be one");
+    
+    articlesForSale = await chainListInstance.getArticlesForSale();   
+    assert.equal(articlesForSale.length, 1, "there must be one article for sale");
+    assert.equal(articlesForSale[0].toNumber(), 1, "article id must be 1"); 
+    
+    let article = await chainListInstance.articles(articlesForSale[0]);
+    assert.equal(article[0].toNumber(), 1, "article id must be 1");
+    assert.equal(article[1], seller, "seller must be " + seller);
+    assert.equal(article[2], 0x0, "buyer must be empty");
+    assert.equal(article[3], articleName1, "article name must be " + articleName1);
+    assert.equal(article[4], articleDescription1, "article description must be " + articleDescription1);
+    assert.equal(article[5].toNumber(), web3.toWei(articlePrice1, "ether"), "article price must be " + web3.toWei(articlePrice1, "ether"));
+  });    
 
-      return chainListInstance.getArticleCount();
-    }).then(function(data) {
-      assert.equal(data, 1, "number of articles must be one");
-
-      return chainListInstance.getArticlesForSale();
-    }).then(function(data) {
-      assert.equal(data.length, 1, "there must be one article for sale");
-      assert.equal(data[0].toNumber(), 1, "article id must be 1");
-
-      return chainListInstance.articles(data[0]);
-    }).then(function(data) {
-      assert.equal(data[0].toNumber(), 1, "article id must be 1");
-      assert.equal(data[1], seller, "seller must be " + seller);
-      assert.equal(data[2], 0x0, "buyer must be empty");
-      assert.equal(data[3], articleName1, "article name must be " + articleName1);
-      assert.equal(data[4], articleDescription1, "article description must be " + articleDescription1);
-      assert.equal(data[5].toNumber(), web3.toWei(articlePrice1, "ether"), "article price must be " + web3.toWei(articlePrice1, "ether"));
-    });
-  });
-
+  // // sell a first article
+  // it("should let us sell a first article", function() {
+  //   return ChainList.deployed().then(function(instance){
+  //     chainListInstance = instance;
+  //     return chainListInstance.sellArticle(
+  //       articleName1,
+  //       articleDescription1,
+  //       web3.toWei(articlePrice1, "ether"),
+  //       {from: seller}
+  //     );
+  //   }).then(function(receipt){
+  //     // check event
+  //     assert.equal(receipt.logs.length, 1, "one event should have been triggered");
+  //     assert.equal(receipt.logs[0].event, "LogSellArticle", "event should be LogSellArticle");
+  //     assert.equal(receipt.logs[0].args._id.toNumber(), 1, "id must be 1");
+  //     assert.equal(receipt.logs[0].args._seller, seller, "event seller must be " + seller);
+  //     assert.equal(receipt.logs[0].args._name, articleName1, "event article name must be " + articleName1);
+  //     assert.equal(receipt.logs[0].args._price.toNumber(), web3.toWei(articlePrice1, "ether"), "event article price must be " + web3.toWei(articlePrice1, "ether"));
+  // 
+  //     return chainListInstance.getArticleCount();
+  //   }).then(function(data) {
+  //     assert.equal(data, 1, "number of articles must be one");
+  // 
+  //     return chainListInstance.getArticlesForSale();
+  //   }).then(function(data) {
+  //     assert.equal(data.length, 1, "there must be one article for sale");
+  //     assert.equal(data[0].toNumber(), 1, "article id must be 1");
+  // 
+  //     return chainListInstance.articles(data[0]);
+  //   }).then(function(data) {
+  //     assert.equal(data[0].toNumber(), 1, "article id must be 1");
+  //     assert.equal(data[1], seller, "seller must be " + seller);
+  //     assert.equal(data[2], 0x0, "buyer must be empty");
+  //     assert.equal(data[3], articleName1, "article name must be " + articleName1);
+  //     assert.equal(data[4], articleDescription1, "article description must be " + articleDescription1);
+  //     assert.equal(data[5].toNumber(), web3.toWei(articlePrice1, "ether"), "article price must be " + web3.toWei(articlePrice1, "ether"));
+  //   });
+  // });
+  // 
   // sell a second article
   it("should let us sell a second article", function() {
     return ChainList.deployed().then(function(instance){
@@ -97,16 +132,16 @@ contract('ChainList', function(accounts){
       assert.equal(receipt.logs[0].args._seller, seller, "event seller must be " + seller);
       assert.equal(receipt.logs[0].args._name, articleName2, "event article name must be " + articleName2);
       assert.equal(receipt.logs[0].args._price.toNumber(), web3.toWei(articlePrice2, "ether"), "event article price must be " + web3.toWei(articlePrice2, "ether"));
-
+  
       return chainListInstance.getArticleCount();
     }).then(function(data) {
       assert.equal(data, 2, "number of articles must be two");
-
+  
       return chainListInstance.getArticlesForSale();
     }).then(function(data) {
       assert.equal(data.length, 2, "there must be two articles for sale");
       assert.equal(data[1].toNumber(), 2, "article id must be 2");
-
+  
       return chainListInstance.articles(data[1]);
     }).then(function(data) {
       assert.equal(data[0].toNumber(), 2, "article id must be 2");
