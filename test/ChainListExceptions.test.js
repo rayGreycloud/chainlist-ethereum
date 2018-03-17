@@ -14,7 +14,7 @@ contract('ChainList', accounts => {
     return ChainList.deployed()
       .then(instance => {
         chainListInstance = instance;
-        return chainListInstance.buyArticle({ 
+        return chainListInstance.buyArticle(1, { 
           from: buyer, 
           value: web3.toWei(articlePrice, "ether") 
         });
@@ -24,37 +24,55 @@ contract('ChainList', accounts => {
       // Expected error passes test
       .catch(error => assert(true))
       // Check article unchanged
-      .then(() => chainListInstance.getArticle())
+      .then(() => chainListInstance.getArticleCount())
       .then(data => {
-        assert.equal(data[0], 0x0, "seller must be empty");
-        assert.equal(data[1], 0x0, "buyer must be empty");
-        assert.equal(data[2], "", "article name must be empty");
-        assert.equal(data[3], "", "article description must be empty");
-        assert.equal(data[4].toNumber(), 0, "article price must be empty");
+        assert.equal(data.toNumber(), 0, "number of articles should be zero");
       });          
   });
   
-  // Seller attempts to buy 
-  it("should throw exception when seller attempts to buy own article", () => {
+  // Article Id does not exist 
+  it("should throw an exception when buy article is attempted with non-existent article Id", () => {
     return ChainList.deployed()
       .then(instance => {
         chainListInstance = instance;
         return chainListInstance.sellArticle(articleName, articleDescription, web3.toWei(articlePrice, "ether"), { from: seller});
-      })
+      })    
       .then(receipt => {
-        return chainListInstance.buyArticle({from: seller, value: web3.toWei(articlePrice, "ether")});
+        return chainListInstance.buyArticle(2, {
+          from: seller, 
+          value: web3.toWei(articlePrice, "ether")});
       })
       .then(assert.fail)
       .catch(error => {
         assert(true);
       })
-      .then(() => chainListInstance.getArticle())
+      .then(() => chainListInstance.articles(1))
       .then(data => {
-        assert.equal(data[0], seller, `seller must be ${seller}`);
-        assert.equal(data[1], 0x0, `buyer must be empty`);
-        assert.equal(data[2], articleName, `article name must be ${articleName}`);
-        assert.equal(data[3], articleDescription, `article description must be ${articleDescription}`);
-        assert.equal(data[4].toNumber(), web3.toWei(articlePrice, "ether"), `article price must be ${web3.toWei(articlePrice, "ether")}`);
+        assert.equal(data[2], 0x0, "buyer should be empty");
+      });
+  });
+  
+  // Seller attempts to buy own article 
+  it("should throw exception when seller attempts to buy own article", () => {
+    return ChainList.deployed()
+      .then(instance => {
+        chainListInstance = instance;
+        return chainListInstance.buyArticle(1, {
+          from: seller, 
+          value: web3.toWei(articlePrice, "ether")});
+      })
+      .then(assert.fail)
+      .catch(error => {
+        assert(true);
+      })
+      .then(() => chainListInstance.articles(1))
+      .then(data => {
+        assert.equal(data[0].toNumber(), 1, "article id must be 1");        
+        assert.equal(data[1], seller, `seller must be ${seller}`);
+        assert.equal(data[2], 0x0, `buyer must be empty`);
+        assert.equal(data[3], articleName, `article name must be ${articleName}`);
+        assert.equal(data[4], articleDescription, `article description must be ${articleDescription}`);
+        assert.equal(data[5].toNumber(), web3.toWei(articlePrice, "ether"), `article price must be ${web3.toWei(articlePrice, "ether")}`);
     });
   });  
   
@@ -63,7 +81,7 @@ contract('ChainList', accounts => {
     return ChainList.deployed()
       .then(instance => {
         chainListInstance = instance;
-        return chainListInstance.buyArticle({ 
+        return chainListInstance.buyArticle(1, { 
           from: buyer, 
           value: web3.toWei(articlePrice - 1, "ether") 
         });
@@ -72,13 +90,14 @@ contract('ChainList', accounts => {
       .catch(error => {
         assert(true);
       })
-      .then(() => chainListInstance.getArticle())
+      .then(() => chainListInstance.articles(1))
       .then(data => {
-        assert.equal(data[0], seller, `seller must be ${seller}`);
-        assert.equal(data[1], 0x0, `buyer must be empty`);
-        assert.equal(data[2], articleName, `article name must be ${articleName}`);
-        assert.equal(data[3], articleDescription, `article description must be ${articleDescription}`);
-        assert.equal(data[4].toNumber(), web3.toWei(articlePrice, "ether"), `article price must be ${web3.toWei(articlePrice, "ether")}`);
+        assert.equal(data[0].toNumber(), 1, "article id must be 1");        
+        assert.equal(data[1], seller, `seller must be ${seller}`);
+        assert.equal(data[2], 0x0, `buyer must be empty`);
+        assert.equal(data[3], articleName, `article name must be ${articleName}`);
+        assert.equal(data[4], articleDescription, `article description must be ${articleDescription}`);
+        assert.equal(data[5].toNumber(), web3.toWei(articlePrice, "ether"), `article price must be ${web3.toWei(articlePrice, "ether")}`);
     });
   });  
 
@@ -87,26 +106,27 @@ contract('ChainList', accounts => {
     return ChainList.deployed()
       .then(instance => {
         chainListInstance = instance;
-        return chainListInstance.buyArticle({ 
+        return chainListInstance.buyArticle(1, { 
           from: buyer, 
           value: web3.toWei(articlePrice, "ether") 
         });
       })
-      .then(() => chainListInstance.buyArticle({ 
-        from: buyer, 
+      .then(() => chainListInstance.buyArticle(1, { 
+        from: web3.eth.accounts[0], 
         value: web3.toWei(articlePrice, "ether") 
       }))
       .then(assert.fail)
       .catch(error => {
         assert(true);
       })
-      .then(() => chainListInstance.getArticle())
+      .then(() => chainListInstance.articles(1))
       .then(data => {
-        assert.equal(data[0], seller, `seller must be ${seller}`);
-        assert.equal(data[1], buyer, `buyer must be ${buyer}`);
-        assert.equal(data[2], articleName, `article name must be ${articleName}`);
-        assert.equal(data[3], articleDescription, `article description must be ${articleDescription}`);
-        assert.equal(data[4].toNumber(), web3.toWei(articlePrice, "ether"), `article price must be ${web3.toWei(articlePrice, "ether")}`);
+        assert.equal(data[0].toNumber(), 1, "article id must be 1");        
+        assert.equal(data[1], seller, `seller must be ${seller}`);
+        assert.equal(data[2], buyer, `buyer must be ${buyer}`);
+        assert.equal(data[3], articleName, `article name must be ${articleName}`);
+        assert.equal(data[4], articleDescription, `article description must be ${articleDescription}`);
+        assert.equal(data[5].toNumber(), web3.toWei(articlePrice, "ether"), `article price must be ${web3.toWei(articlePrice, "ether")}`);
     });
   });  
 });
