@@ -29,26 +29,34 @@ contract('ChainList', accounts => {
   });
   
   // Article Id does not exist 
-  it("should throw an exception when buy article is attempted with non-existent article Id", () => {
-    return ChainList.deployed()
-      .then(instance => {
-        chainListInstance = instance;
-        return chainListInstance.sellArticle(articleName, articleDescription, articlePrice, { from: seller});
-      })    
-      .then(receipt => {
-        return chainListInstance.buyArticle(2, {
-          from: seller, 
-          value: articlePrice});
-      })
-      .then(assert.fail)
-      .catch(error => {
-        assert(true);
-      })
-      .then(() => chainListInstance.articles(1))
-      .then(data => {
-        assert.equal(data[2], 0x0, "buyer should be empty");
+  it("should throw an exception when buy article is attempted with non-existent article Id", async () => {
+    // Get contract instance 
+    chainListInstance = await ChainList.deployed();
+    // Sell article 
+    await chainListInstance.sellArticle(
+      articleName, 
+      articleDescription, 
+      articlePrice, 
+      { from: seller}
+    );
+    
+    // Attempt to buy article with non-existent id      
+    try {
+      await chainListInstance.buyArticle(2, { 
+        from: buyer, 
+        value: articlePrice
       });
-  });
+    } catch (error) {
+      // If error then test passed
+      assert(true);
+      // Check buyer property of article for sale
+      const article = await chainListInstance.articles(1);
+      assert.equal(article[2], 0x0, "buyer should be empty")
+      return;
+    }
+    // If no error, test failed
+    assert.fail;    
+  });       
   
   // Seller attempts to buy own article 
   it("should throw exception when seller attempts to buy own article", () => {
