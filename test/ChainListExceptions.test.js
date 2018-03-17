@@ -10,24 +10,22 @@ contract('ChainList', accounts => {
   const articlePrice = web3.toWei(10);
   
   // No article for sale 
-  it("should throw exception when buy article is attempted and no article is for sale", () => {
-    return ChainList.deployed()
-      .then(instance => {
-        chainListInstance = instance;
-        return chainListInstance.buyArticle(1, { 
-          from: buyer, 
-          value: articlePrice 
-        });
-      })
-      // If here then test failed
-      .then(assert.fail)
-      // Expected error passes test
-      .catch(error => assert(true))
-      // Check article unchanged
-      .then(() => chainListInstance.getArticleCount())
-      .then(data => {
-        assert.equal(data.toNumber(), 0, "number of articles should be zero");
-      });          
+  it("should throw exception when buy article is attempted and no article is for sale", async () => {
+    // Get contract instance 
+    chainListInstance = await ChainList.deployed();
+    // Attempt to buy non-existent article     
+    try {
+      await chainListInstance.buyArticle(1, { 
+        from: buyer, 
+        value: articlePrice
+      });
+    } catch (error) {
+      // If error then test passed
+      assert(true);
+      return;
+    }
+    // If no error, test failed
+    assert.fail;            
   });
   
   // Article Id does not exist 
