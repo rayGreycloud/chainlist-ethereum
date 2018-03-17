@@ -84,7 +84,7 @@ contract('ChainList', accounts => {
   it("should throw exception if buyer does not send correct value", async () => {
     // Get contract instance 
     chainListInstance = await ChainList.deployed();
-    // Attempt to buy non-existent article     
+    // Attempt to buy article with wrong price     
     try {
       await chainListInstance.buyArticle(1, { 
         from: buyer, 
@@ -103,31 +103,30 @@ contract('ChainList', accounts => {
   });  
 
   // Article already bought 
-  it("should throw exception if article was already purchased", () => {
-    return ChainList.deployed()
-      .then(instance => {
-        chainListInstance = instance;
-        return chainListInstance.buyArticle(1, { 
-          from: buyer, 
-          value: articlePrice 
-        });
-      })
-      .then(() => chainListInstance.buyArticle(1, { 
-        from: web3.eth.accounts[0], 
-        value: articlePrice 
-      }))
-      .then(assert.fail)
-      .catch(error => {
-        assert(true);
-      })
-      .then(() => chainListInstance.articles(1))
-      .then(data => {
-        assert.equal(data[0].toNumber(), 1, "article id must be 1");        
-        assert.equal(data[1], seller, `seller must be ${seller}`);
-        assert.equal(data[2], buyer, `buyer must be ${buyer}`);
-        assert.equal(data[3], articleName, `article name must be ${articleName}`);
-        assert.equal(data[4], articleDescription, `article description must be ${articleDescription}`);
-        assert.equal(data[5].toNumber(), articlePrice, `article price must be ${articlePrice}`);
+  it("should throw exception if article was already purchased", async () => {
+    // Get contract instance 
+    chainListInstance = await ChainList.deployed();
+    // Account 2 buys article 
+    await chainListInstance.buyArticle(1, { 
+      from: buyer,
+      value: articlePrice
     });
-  });  
+    
+    // Account 0 attempts to buy same article     
+    try {
+      await chainListInstance.buyArticle(1, { 
+        from: web3.eth.accounts[0], 
+        value: articlePrice
+      });
+    } catch (error) {
+      // If error then test passed
+      assert(true);
+      // Check buyer property of article for sale
+      const article = await chainListInstance.articles(1);
+      assert.equal(article[2], buyer, `buyer should be ${buyer}`);
+      return;
+    }
+    // If no error, test failed
+    assert.fail;        
+  });
 });
