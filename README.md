@@ -1,6 +1,8 @@
 # chainlist 
 ## Ethereum DApp with browser UI
 
+## Front end now available on repo github page
+
 ### Featuring:
  * solidity
  * truffle
