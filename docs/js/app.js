@@ -6,11 +6,13 @@ App = {
   loading: false,
   
   // Initialize App 
-  init: function() {
-    return App.initWeb3();
-  },
+  // init: function() {
+  //   return App.initWeb3();
+  // },
+  init: () => App.initWeb3(),
+  
   // Initialize web3 and set provider
-  initWeb3: function() {
+  initWeb3: () => {
     // initialize web3 
     if (typeof web3 !== 'undefined') {
       // reuse provider from Metamask web3 object
@@ -26,21 +28,42 @@ App = {
     // Next step, initialize contract
     return App.initContract();
   },
+  
   // Display account info 
-  displayAccountInfo: function() {
+  // displayAccountInfo: async () => {
+  //   try {  
+  //     const account = await web3.eth.getCoinbase();
+  //     App.account = account;
+  //     document.querySelector('#account').textContent = account;
+  //     // $('#account').text(account);
+  // 
+  //     const balance = await web3.eth.getBalance(account);
+  //     $('#accountBalance').text(web3.fromWei(balance, 'ether') + ' ETH');
+  //   } catch (err) {
+  //     let errorMessage = err.message.split("\n")[0];
+  //     $('#account').text(errorMessage);
+  //   }
+  // },  
+  displayAccountInfo: () => {  
     web3.eth.getCoinbase(function (err, account) {
       if (err === null) {
         App.account = account;
-        $('#account').text(account);
-        
+        document.querySelector('#account').textContent = account;        
+        //$('#account').text(account);
+  
         web3.eth.getBalance(account, function (err, balance) {
-          $('#accountBalance').text(web3.fromWei(balance, 'ether') + ' ETH');
+          balanceText = `${web3.fromWei(balance, 'ether')} ETH`;
+          document.querySelector('#accountBalance').textContent = balanceText;
+          
+          //$('#accountBalance').text(web3.fromWei(balance, 'ether') + ' ETH');
         });
       }
     }); 
   },
+  
   // Initialize contract 
-  initContract: function() {
+  initContract: () => {
+    // ? Replace with JSON.parse()?
     $.getJSON('ChainList.json', function (chainListArtifact) {
       // Get contract and instantiate contract 
       App.contracts.ChainList = TruffleContract(chainListArtifact);
@@ -52,8 +75,9 @@ App = {
       return App.reloadArticles();
     });
   },
+  
   // Reload article info 
-  reloadArticles: function() {
+  reloadArticles: () => {
     // Check loading status - avoid reentry 
     if (App.loading) { return; }    
     // Toggle loading status 
@@ -72,7 +96,8 @@ App = {
       })
       .then(articleIds => {
         // retrieve the article placeholder and clear 
-        $('#articlesRow').empty();
+        document.getElementById("articlesRow").innerHTML = ""; 
+        //$('#articlesRow').empty();
         // Iterate thru articles and call display function
         for (let i = 0; i < articleIds.length; i++) {
           let articleId = articleIds[i];
@@ -97,7 +122,7 @@ App = {
       });
   },
   // Create html for article 
-  displayArticle: function (id, seller, name, description, price) {
+  displayArticle: (id, seller, name, description, price) => {
     let articlesRow = $('#articlesRow');
     let etherPrice = web3.fromWei(price, "ether");
     
@@ -119,7 +144,7 @@ App = {
   },
   
   // Sell article 
-  sellArticle: function () {
+  sellArticle: () => {
     // retrieve details of article 
     const _article_name = document.querySelector('#article_name').value;
     const _description = document.querySelector('#article_description').value;
@@ -140,8 +165,9 @@ App = {
       .catch(err => console.error(err)); 
       
   }, 
+  
   // Listen to events triggered by contract
-  listenToEvents: function () {
+  listenToEvents: () => {
     App.contracts.ChainList.deployed().then(instance => {
       instance.LogSellArticle({}, {})
         .watch(function (error, event) {
@@ -166,7 +192,7 @@ App = {
     });
   },
   
-  buyArticle: function () {
+  buyArticle: () => {
     event.preventDefault();
     
     // Retrieve the article id and price from button data 
@@ -184,7 +210,7 @@ App = {
 };
 
 $(function() {
-  $(window).load(function() {
-    App.init();
-  });
+  $(window).load(() => App.init());
 });
+// ?? Replace with
+// document.addEventListener("DOMContentLoaded", App.init);

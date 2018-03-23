@@ -8,14 +8,14 @@
       "type": "constructor"
     }
   ],
-  "bytecode": "0x60606040523415600e57600080fd5b336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550603580605b6000396000f3006060604052600080fd00a165627a7a723058205c8af81ff0a936d5404c6e7f04caf4adcc126463044df8708a171e7f964ccc290029",
-  "deployedBytecode": "0x6060604052600080fd00a165627a7a723058205c8af81ff0a936d5404c6e7f04caf4adcc126463044df8708a171e7f964ccc290029",
+  "bytecode": "0x60606040523415600e57600080fd5b336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550603580605b6000396000f3006060604052600080fd00a165627a7a72305820bbf9a3e05f92f4e5947094bfd2af5ce015e9889efb4be14bc70046728c6a89110029",
+  "deployedBytecode": "0x6060604052600080fd00a165627a7a72305820bbf9a3e05f92f4e5947094bfd2af5ce015e9889efb4be14bc70046728c6a89110029",
   "sourceMap": "26:179:2:-;;;144:56;;;;;;;;185:10;177:5;;:18;;;;;;;;;;;;;;;;;;26:179;;;;;;",
   "deployedSourceMap": "26:179:2:-;;;;;",
   "source": "pragma solidity ^0.4.18;\n\ncontract Ownable {\n  address owner;\n  \n  modifier onlyOwner() {\n    require(msg.sender == owner);\n    _;\n  }\n      \n  function Ownable () public {\n    owner = msg.sender;\n  }\n  \n}",
-  "sourcePath": "D:\\code\\arbogast-ethereum\\chainlist\\contracts\\Ownable.sol",
+  "sourcePath": "D:\\coDe\\arbogast-ethereum\\chainlist\\contracts\\Ownable.sol",
   "ast": {
-    "absolutePath": "/D/code/arbogast-ethereum/chainlist/contracts/Ownable.sol",
+    "absolutePath": "/D/coDe/arbogast-ethereum/chainlist/contracts/Ownable.sol",
     "exportedSymbols": {
       "Ownable": [
         345
@@ -305,7 +305,7 @@
     "src": "0:205:2"
   },
   "legacyAST": {
-    "absolutePath": "/D/code/arbogast-ethereum/chainlist/contracts/Ownable.sol",
+    "absolutePath": "/D/coDe/arbogast-ethereum/chainlist/contracts/Ownable.sol",
     "exportedSymbols": {
       "Ownable": [
         345
@@ -600,5 +600,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-03-20T17:01:07.298Z"
+  "updatedAt": "2018-03-23T18:20:17.757Z"
 }
