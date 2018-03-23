@@ -9,5 +9,7 @@ logs
 *.log
 npm-debug.log*
 
+*.sec
+
 
 
